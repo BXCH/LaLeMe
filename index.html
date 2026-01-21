@@ -3,63 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LaLeMe - 拉了么，发现你的每一份努力</title>
-    <!-- 引入 Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=ZCOOL+KuaiLe&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>LaLeMe - 每一份努力都值得记录</title>
+    <!-- 使用国内极速镜像加载 Supabase SDK -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/supabase/2.39.3/supabase.js"></script>
     <style>
-        :root { --primary: #ff9800; --danger: #ff4d4f; --bg: #f0f2f5; --accent: #4caf50; --sos: #ff0000; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; }
+        :root { --primary: #ff9800; --danger: #ff4d4f; --bg: #f5f7fa; --accent: #4caf50; --sos: #ff0000; }
         
-        /* 品牌头 */
-        header { background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); color: white; padding: 25px 20px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; position: relative; box-shadow: 0 5px 15px rgba(255,152,0,0.3); }
-        header h1 { margin: 0; font-size: 42px; font-family: 'Black Han Sans', sans-serif; text-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
-        .tagline { font-family: 'ZCOOL KuaiLe', cursive; font-size: 16px; opacity: 0.9; margin-top: 5px; }
+        /* 1. 极速字体设置：使用系统自带最粗字体，避免加载谷歌字体 */
+        body { 
+            font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", "Arial Black", sans-serif; 
+            background: var(--bg); margin: 0; padding-bottom: 80px; 
+        }
 
-        /* 全局通知栏 */
-        #notif-bar { position: absolute; top: 10px; width: 90%; left: 5%; background: rgba(255,255,255,0.95); color: var(--sos); padding: 10px; border-radius: 20px; font-size: 13px; font-weight: bold; transform: translateY(-120px); transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;}
+        /* 品牌头：大气、醒目的广告效果 */
+        header { 
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); 
+            color: white; padding: 30px 20px; text-align: center; 
+            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; 
+            position: relative; box-shadow: 0 8px 20px rgba(255,152,0,0.3); 
+        }
+        header h1 { 
+            margin: 0; font-size: 48px; font-weight: 900; 
+            letter-spacing: -2px; text-shadow: 3px 3px 0px rgba(0,0,0,0.1); 
+        }
+        .tagline { font-size: 18px; font-weight: bold; margin-top: 5px; opacity: 0.9; }
+
+        /* 全局通知 */
+        #notif-bar { 
+            position: absolute; top: 10px; width: 90%; left: 5%; background: rgba(255,255,255,0.98); 
+            color: var(--sos); padding: 12px; border-radius: 25px; font-size: 14px; font-weight: 900; 
+            transform: translateY(-150px); transition: 0.5s; z-index: 2000; box-shadow: 0 5px 20px rgba(0,0,0,0.2); 
+            text-align: center; border: 2px solid var(--sos);
+        }
 
         /* 数据看板 */
-        .stats-bar { display: flex; justify-content: space-around; background: white; margin: -20px 20px 10px; padding: 18px 10px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; z-index: 10; }
-        .stat-item { text-align: center; }
-        .stat-value { font-weight: 800; font-size: 20px; color: var(--primary); display: block; }
-        .stat-label { font-size: 11px; color: #999; }
+        .stats-bar { 
+            display: flex; justify-content: space-around; background: white; 
+            margin: -25px 20px 15px; padding: 20px 10px; border-radius: 20px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.06); position: relative; z-index: 10; 
+        }
+        .stat-item { text-align: center; cursor: pointer; }
+        .stat-value { font-weight: 900; font-size: 22px; color: var(--primary); display: block; }
+        .stat-label { font-size: 11px; color: #999; text-decoration: underline; }
 
         /* SOS 按钮 */
-        #sos-floating { position: fixed; right: 20px; bottom: 100px; width: 75px; height: 75px; background: var(--sos); color: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; cursor: pointer; z-index: 999; animation: pulse-red 2s infinite; border: 3px solid white; box-shadow: 0 5px 20px rgba(255,0,0,0.4); }
+        #sos-floating { 
+            position: fixed; right: 20px; bottom: 100px; width: 80px; height: 80px; 
+            background: var(--sos); color: white; border-radius: 50%; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            font-size: 12px; font-weight: 900; cursor: pointer; z-index: 999; 
+            animation: pulse-red 2s infinite; border: 4px solid white; box-shadow: 0 8px 25px rgba(255,0,0,0.4); 
+        }
         @keyframes pulse-red { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        /* 主工作区 */
-        .dashboard { background: white; margin: 15px 20px; border-radius: 24px; padding: 25px 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.06); position: relative; }
-        .video-window { width: 100%; height: 180px; background: #000; border-radius: 16px; margin-bottom: 20px; display: none; overflow: hidden; }
-        .video-window iframe { width: 100%; height: 100%; border: none; }
+        /* 主仪表盘：填补视频删除后的空缺 */
+        .dashboard { 
+            background: white; margin: 15px 20px; border-radius: 30px; 
+            padding: 40px 15px; text-align: center; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05); position: relative; 
+            background-image: radial-gradient(#fffaf0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .poop-icon-bg { font-size: 80px; margin-bottom: 10px; display: block; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
         
-        #timer-display { font-size: 64px; font-weight: bold; font-family: 'Share Tech Mono', monospace; color: #333; margin: 10px 0; }
-        .salary-box { font-size: 16px; color: var(--accent); margin-bottom: 10px; font-family: 'Share Tech Mono', monospace; font-weight: bold;}
+        #timer-display { font-size: 70px; font-weight: 900; color: #333; margin: 10px 0; font-variant-numeric: tabular-nums; }
+        .salary-box { font-size: 18px; color: var(--accent); margin-bottom: 20px; font-weight: 900; }
 
-        .main-btn { width: 150px; height: 150px; border-radius: 50%; border: none; font-size: 22px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; box-shadow: 0 10px 30px rgba(255, 152, 0, 0.4); }
+        .main-btn { 
+            width: 160px; height: 160px; border-radius: 50%; border: none; 
+            font-size: 24px; font-weight: 900; cursor: pointer; color: white; 
+            transition: 0.3s; box-shadow: 0 10px 30px rgba(255, 152, 0, 0.4); 
+        }
         .btn-start { background: var(--primary); }
-        .btn-stop { background: var(--danger); box-shadow: 0 10px 30px rgba(255, 77, 79, 0.4); }
-        .main-btn:active { transform: scale(0.9); }
+        .btn-stop { background: var(--danger); animation: shake 0.5s infinite; }
+        @keyframes shake { 0%, 100% {transform: rotate(0);} 25% {transform: rotate(2deg);} 75% {transform: rotate(-2deg);} }
 
         /* 共享链接 */
-        .share-container { background: #fff; margin: 20px; padding: 18px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .share-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; color: #333; }
-        .link-input-group { display: flex; gap: 8px; margin-bottom: 15px; }
-        .link-input-group input { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 13px; outline: none; transition: 0.3s; }
-        .link-input-group input:focus { border-color: var(--primary); }
-        .link-input-group button { background: var(--primary); color: white; border: none; padding: 0 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .share-container { background: #fff; margin: 20px; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .share-title { font-size: 16px; font-weight: 900; margin-bottom: 15px; color: #444; }
+        .link-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .link-input-group input { flex: 1; padding: 12px; border: 2px solid #f0f0f0; border-radius: 12px; font-size: 14px; outline: none; }
+        .link-input-group button { background: var(--primary); color: white; border: none; padding: 0 20px; border-radius: 12px; font-weight: 900; cursor: pointer; }
 
-        /* 动态墙 */
-        .feed-item { background: white; margin: 0 20px 12px; padding: 18px; border-radius: 18px; border-left: 6px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .feed-user { font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #333; }
-        .feed-time { font-size: 11px; color: #bbb; }
+        /* 动态列表 */
+        .feed-item { background: white; margin: 0 20px 12px; padding: 20px; border-radius: 20px; border-left: 8px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .feed-user { font-weight: 900; font-size: 16px; color: #333; margin-bottom: 5px; }
+        .feed-content { font-size: 14px; color: #666; line-height: 1.6; }
 
-        /* 形状弹窗 */
-        #shape-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: white; width: 85%; border-radius: 24px; padding: 25px; max-height: 80vh; overflow-y: auto; }
-        .shape-opt { display: flex; align-items: center; padding: 15px; border: 1px solid #f0f0f0; margin-bottom: 10px; border-radius: 15px; cursor: pointer; transition: 0.2s; }
-        .shape-opt:active { background: #fff8ee; transform: scale(0.98); border-color: var(--primary); }
+        /* 形状选择 */
+        #shape-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 85%; border-radius: 30px; padding: 25px; }
+        .shape-opt { display: flex; align-items: center; padding: 15px; border: 2px solid #f9f9f9; margin-bottom: 10px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+        .shape-opt:active { background: #fff8ee; border-color: var(--primary); }
     </style>
 </head>
 <body>
@@ -67,52 +102,59 @@
     <audio id="water-sound" loop><source src="https://www.soundjay.com/nature/river-1.mp3" type="audio/mpeg"></audio>
 
     <header>
-        <div id="notif-bar">📢 正在接入肠道卫星...</div>
+        <div id="notif-bar">📢 肠道卫星已连接...</div>
         <h1>LaLeMe</h1>
-        <div class="tagline">拉了么 · 发现你的每一份努力</div>
+        <div class="tagline">拉了么 发现你的每一份努力</div>
     </header>
 
     <div class="stats-bar">
-        <div class="stat-item"><span class="stat-value" id="stat-counts">0</span><span class="stat-label">全员总拉</span></div>
-        <div class="stat-item"><span class="stat-value" id="user-nick">...</span><span class="stat-label">我的昵称</span></div>
-        <div class="stat-item"><span class="stat-value">LV.1</span><span class="stat-label">搬砖屎者</span></div>
+        <div class="stat-item" onclick="alert('累计天数功能已联机同步！')">
+            <span class="stat-value" id="stat-days">0</span>
+            <span class="stat-label">累计天数 📅</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="stat-counts">0</span>
+            <span class="stat-label">全员总拉</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="user-nick">...</span>
+            <span class="stat-label">我的昵称</span>
+        </div>
     </div>
 
     <div id="sos-floating" onclick="triggerSOS()">
-        <span style="font-size: 28px;">🧻</span><span>没纸了!</span>
+        <span style="font-size: 30px;">🧻</span><span>没纸了!</span>
     </div>
 
     <div class="dashboard" id="mainDash">
-        <div class="video-window" id="videoWindow">
-            <iframe id="healingVideo" src="" allow="autoplay"></iframe>
-        </div>
-        <div class="salary-box">💵 本次摸鱼收入: ¥<span id="salary-val">0.000</span></div>
+        <span class="poop-icon-bg" id="mainIcon">💩</span>
+        <div class="salary-box">💵 带薪收入: ¥<span id="salary-val">0.000</span></div>
         <div id="timer-display">00:00</div>
         <button id="actionBtn" class="main-btn btn-start" onclick="toggleSession()">开始拉屎</button>
-        <p style="color: #ccc; font-size: 12px; margin-top: 20px;">三分钟脚麻预警已开启</p>
+        <p id="warning-hint" style="color: #bbb; font-size: 12px; margin-top: 25px; font-weight: bold;">⚠️ 3分钟生存挑战已开启</p>
     </div>
 
     <div class="share-container">
-        <div class="share-title">✨ 蹲坑共享 (实时同步)</div>
+        <div class="share-title">✨ 蹲坑共享链接 (实时同步)</div>
         <div class="link-input-group">
-            <input type="text" id="linkInput" placeholder="贴个好玩的链接分享给好友...">
+            <input type="text" id="linkInput" placeholder="贴个好玩的分享给好友...">
             <button onclick="addShareLink()">发送</button>
         </div>
-        <div id="linksList"></div>
+        <div id="linksList" style="font-size: 13px; color: #007bff;"></div>
     </div>
 
-    <div style="padding: 0 20px 10px; font-size: 15px; font-weight: bold; color: #666;">全员实时战报</div>
+    <div style="padding: 10px 25px; font-size: 16px; font-weight: 900; color: #444;">实时战报</div>
     <div id="feedList"></div>
 
     <div id="shape-modal">
         <div class="modal-content">
-            <h3 style="text-align:center; margin-top: 0;">记录本次形态</h3>
+            <h2 style="text-align:center; margin-top: 0;">记录本次形态</h2>
             <div id="shape-list"></div>
         </div>
     </div>
 
     <script>
-        // --- 1. 配置 Supabase (已为你填入参数) ---
+        // --- 1. 配置 Supabase ---
         const SB_URL = "https://qqqsolzdzqsgchcquijb.supabase.com";
         const SB_KEY = "sb_publishable_HkK7R0rz8u1B4f2h7_p6UA_zsBsNTWk";
         const { createClient } = supabase;
@@ -121,26 +163,25 @@
         let startTime, timerInterval, isPooping = false;
         let nickName = localStorage.getItem('laleme_nick') || "";
         const shapes = [
-            {id: 1, icon: "🌰", name: "硬球状 (便秘)"}, {id: 2, icon: "🌭", name: "凹凸香肠状"},
-            {id: 3, icon: "🥖", name: "裂纹香肠状 (正常)"}, {id: 4, icon: "🍌", name: "丝滑香蕉状 (完美)"},
-            {id: 5, icon: "🍕", name: "软碎块状"}, {id: 6, icon: "🍟", name: "糊状碎块"}, {id: 7, icon: "🌊", name: "水状 (腹泻)"}
+            {id: 1, icon: "🌰", name: "硬球"}, {id: 2, icon: "🌭", name: "香肠"},
+            {id: 3, icon: "🥖", name: "正常"}, {id: 4, icon: "🍌", name: "完美"},
+            {id: 5, icon: "🍕", name: "软块"}, {id: 6, icon: "🍟", name: "糊状"}, {id: 7, icon: "🌊", name: "水状"}
         ];
 
-        // --- 2. 初始化 ---
         window.onload = async () => {
             if (!nickName) {
-                nickName = prompt("欢迎来到 LaLeMe！请输入你的蹲坑昵称：") || "匿名英雄";
+                nickName = prompt("欢迎来到 LaLeMe！请输入昵称：") || "匿名屎者";
                 localStorage.setItem('laleme_nick', nickName);
             }
             document.getElementById('user-nick').innerText = nickName;
 
             refreshData();
 
-            // 订阅实时数据
+            // 订阅实时通知
             _supabase.channel('public_room')
                 .on('postgres_changes', { event: 'INSERT', table: 'poop_logs' }, () => refreshData())
                 .on('postgres_changes', { event: 'INSERT', table: 'sos_signals' }, payload => {
-                    showNotif(`🚨 紧急！${payload.new.nickname} 没纸了！快去救援！`);
+                    showNotif(`🚨 紧急！${payload.new.nickname} 没纸了！快救救 TA！`);
                 })
                 .on('postgres_changes', { event: 'INSERT', table: 'shared_links' }, () => refreshData())
                 .subscribe();
@@ -153,20 +194,17 @@
             fetchLinks();
         }
 
-        // --- 3. 核心计时逻辑 ---
         function toggleSession() {
+            const btn = document.getElementById('actionBtn');
+            const icon = document.getElementById('mainIcon');
             if (!isPooping) {
                 isPooping = true;
                 startTime = new Date();
-                const btn = document.getElementById('actionBtn');
                 btn.innerText = "拉完了";
                 btn.className = "main-btn btn-stop";
+                icon.innerText = "😤"; // 努力中的表情
                 document.getElementById('water-sound').play();
-                document.getElementById('videoWindow').style.display = 'block';
-                // 随机放个治愈视频
-                document.getElementById('healingVideo').src = "https://www.youtube.com/embed/n_L_m_Yos88?autoplay=1&mute=1&controls=0";
                 timerInterval = setInterval(updateTimer, 100);
-                showNotif("✨ 战斗开始！祝你顺畅！");
             } else {
                 document.getElementById('shape-modal').style.display = 'flex';
             }
@@ -177,10 +215,11 @@
             const m = Math.floor(diff/60).toString().padStart(2,'0');
             const s = (diff%60).toString().padStart(2,'0');
             document.getElementById('timer-display').innerText = `${m}:${s}`;
-            document.getElementById('salary-val').innerText = (diff * 0.015).toFixed(3); // 假设每秒0.015元
+            document.getElementById('salary-val').innerText = (diff * 0.015).toFixed(3);
 
-            if (diff >= 180) { // 3分钟变色
+            if (diff >= 180) {
                 document.getElementById('mainDash').style.background = "#fff1f0";
+                document.getElementById('warning-hint').innerText = "🚨 警报：脚麻倒计时开始！";
             }
         }
 
@@ -188,24 +227,19 @@
             isPooping = false;
             clearInterval(timerInterval);
             document.getElementById('water-sound').pause();
-            document.getElementById('videoWindow').style.display = 'none';
             document.getElementById('shape-modal').style.display = 'none';
-            
             const duration = Math.floor((new Date() - startTime) / 1000);
             const salary = (duration * 0.015).toFixed(2);
 
-            const { error } = await _supabase.from('poop_logs').insert([
+            await _supabase.from('poop_logs').insert([
                 { nickname: nickName, duration: duration, shape_id: shapeId, salary: parseFloat(salary) }
             ]);
-
-            if(error) alert("保存失败，请检查数据库表是否创建！");
             resetUI();
         }
 
-        // --- 4. 社交互动 ---
         async function triggerSOS() {
             await _supabase.from('sos_signals').insert([{ nickname: nickName }]);
-            showNotif("🚨 SOS信号已发射，等待救援中...");
+            showNotif("🚨 SOS 已广播至全宇宙！");
         }
 
         async function addShareLink() {
@@ -216,40 +250,35 @@
             showNotif("✅ 共享成功！");
         }
 
-        // --- 5. 数据抓取 ---
         async function fetchLogs() {
             const { data } = await _supabase.from('poop_logs').select('*').order('created_at', { ascending: false }).limit(10);
             if (data) {
                 document.getElementById('stat-counts').innerText = data.length;
+                const days = new Set(data.map(l => new Date(l.created_at).toDateString()));
+                document.getElementById('stat-days').innerText = days.size;
                 document.getElementById('feedList').innerHTML = data.map(l => `
                     <div class="feed-item">
-                        <div class="feed-user">${l.nickname} <span style="font-size:12px; font-weight:normal; color:#ff9800;">带薪赚了 ¥${l.salary}</span></div>
-                        <div style="font-size:13px; color:#666;">用时 ${Math.floor(l.duration/60)}分${l.duration%60}秒 | 状态: ${shapes[l.shape_id-1]?.icon || '💩'}</div>
-                        <div class="feed-time">${new Date(l.created_at).toLocaleString()}</div>
+                        <div class="feed-user">${l.nickname} <span style="font-size:12px; color:var(--primary);">赚了 ¥${l.salary}</span></div>
+                        <div class="feed-content">用时 ${Math.floor(l.duration/60)}分${l.duration%60}秒 | 状态: ${shapes[l.shape_id-1]?.icon || '💩'}</div>
                     </div>
                 `).join('');
             }
         }
 
         async function fetchLinks() {
-            const { data } = await _supabase.from('shared_links').select('*').order('created_at', { ascending: false }).limit(5);
+            const { data } = await _supabase.from('shared_links').select('*').order('created_at', { ascending: false }).limit(3);
             if (data) {
                 document.getElementById('linksList').innerHTML = data.map(l => `
-                    <div style="padding:8px; background:#f9f9f9; border-radius:8px; margin-bottom:5px; font-size:12px;">
-                        🔗 <a href="${l.url}" target="_blank" style="color:var(--primary);">${l.url.substring(0,35)}...</a> 
-                        <span style="color:#999;">(@${l.nickname})</span>
-                    </div>
+                    <div style="margin-bottom:8px;">🔗 <a href="${l.url}" target="_blank">${l.url.substring(0,35)}...</a> (@${l.nickname})</div>
                 `).join('');
             }
         }
 
-        // --- 辅助功能 ---
         function initShapeList() {
             const container = document.getElementById('shape-list');
             shapes.forEach(s => {
                 container.innerHTML += `<div class="shape-opt" onclick="saveLog(${s.id})">
-                    <span style="font-size:28px; margin-right:15px;">${s.icon}</span>
-                    <span style="font-weight:bold; color:#444;">${s.name}</span>
+                    <span style="font-size:30px; margin-right:15px;">${s.icon}</span> ${s.name}
                 </div>`;
             });
         }
@@ -258,7 +287,7 @@
             const bar = document.getElementById('notif-bar');
             bar.innerText = text;
             bar.style.transform = "translateY(0)";
-            setTimeout(() => bar.style.transform = "translateY(-120px)", 4000);
+            setTimeout(() => bar.style.transform = "translateY(-150px)", 4000);
         }
 
         function resetUI() {
@@ -266,6 +295,8 @@
             document.getElementById('actionBtn').className = "main-btn btn-start";
             document.getElementById('timer-display').innerText = "00:00";
             document.getElementById('mainDash').style.background = "white";
+            document.getElementById('mainIcon').innerText = "💩";
+            document.getElementById('warning-hint').innerText = "⚠️ 3分钟生存挑战已开启";
         }
     </script>
 </body>
