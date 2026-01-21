@@ -3,65 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LaLeMe V8.0 - 联机稳定版</title>
+    <title>LaLeMe V10.0 - 联机纠错版</title>
+    <!-- 使用官方最新稳定版 SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #ff9800; --danger: #ff4d4f; --bg: #f5f7fa; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; user-select: none; }
-        header { background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); color: white; padding: 30px 20px; text-align: center; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
-        .stats-bar { display: flex; justify-content: space-around; background: white; margin: -25px 20px 15px; padding: 20px 10px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.06); }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; }
+        header { background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); color: white; padding: 25px 20px; text-align: center; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+        .stats-bar { display: flex; justify-content: space-around; background: white; margin: -15px 20px 10px; padding: 15px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .stat-item { text-align: center; flex: 1; }
-        .stat-value { font-weight: 900; font-size: 18px; color: var(--primary); display: block; }
-        .stat-label { font-size: 11px; color: #999; }
-        .dashboard { background: white; margin: 15px 20px; border-radius: 30px; padding: 30px 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
-        #timer-display { font-size: 60px; font-weight: 900; color: #333; margin: 10px 0; font-family: monospace; }
-        .main-btn { width: 160px; height: 160px; border-radius: 50%; border: none; font-size: 24px; font-weight: 900; cursor: pointer; color: white; background: var(--primary); box-shadow: 0 10px 30px rgba(255, 152, 0, 0.4); }
-        .btn-stop { background: var(--danger); box-shadow: 0 10px 30px rgba(255, 77, 79, 0.4); }
-        #shape-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; }
-        .modal-content { background: white; width: 85%; border-radius: 25px; padding: 20px; text-align: center; }
-        .shape-opt { display: flex; align-items: center; justify-content: center; padding: 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 15px; font-weight: bold; font-size: 18px; background: #fff; }
-        .feed-item { background: white; margin: 10px 20px; padding: 15px; border-radius: 15px; border-left: 6px solid var(--primary); font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .stat-value { font-weight: 800; font-size: 18px; color: var(--primary); display: block; }
+        .dashboard { background: white; margin: 15px 20px; border-radius: 24px; padding: 30px 15px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        #timer-display { font-size: 55px; font-weight: 900; color: #333; margin: 10px 0; font-family: monospace; }
+        .main-btn { width: 150px; height: 150px; border-radius: 50%; border: none; font-size: 22px; font-weight: 900; cursor: pointer; color: white; background: var(--primary); box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3); transition: 0.2s; }
+        .btn-stop { background: var(--danger); box-shadow: 0 8px 20px rgba(255, 77, 79, 0.3); }
+        .feed-item { background: white; margin: 10px 20px; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.03); font-size: 14px; }
+        #shape-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 85%; border-radius: 20px; padding: 20px; }
+        .shape-opt { display: flex; align-items: center; padding: 12px; border: 1px solid #eee; margin-bottom: 8px; border-radius: 10px; font-weight: bold; }
+        /* 错误提示层 */
+        #error-msg { background: #fee; color: #c00; font-size: 12px; padding: 10px; margin: 10px 20px; border-radius: 10px; display: none; word-break: break-all; border: 1px solid #fcc; }
     </style>
 </head>
 <body>
 
-    <audio id="water-sound" loop><source src="https://www.soundjay.com/nature/river-1.mp3" type="audio/mpeg"></audio>
-
     <header>
-        <h1>LaLeMe</h1>
-        <div style="font-weight: bold;">发现你的每一份努力</div>
+        <h1 style="margin:0">LaLeMe</h1>
+        <div style="font-size:12px">联机状态：<span id="conn-status">📡 连接中...</span></div>
     </header>
 
+    <div id="error-msg"></div>
+
     <div class="stats-bar">
-        <div class="stat-item"><span class="stat-value" id="stat-counts">...</span><span class="stat-label">全员总拉</span></div>
-        <div class="stat-item" onclick="forceChangeNick()"><span class="stat-value" id="user-nick">...</span><span class="stat-label">我的昵称 (点我改名)</span></div>
+        <div class="stat-item"><span class="stat-value" id="stat-counts">0</span><span class="stat-label">全员总拉</span></div>
+        <div class="stat-item" onclick="changeNick()"><span class="stat-value" id="user-nick">...</span><span class="stat-label">我的昵称 (点我改)</span></div>
     </div>
 
     <div class="dashboard">
-        <span style="font-size:60px;">💩</span>
-        <div style="font-weight: bold; color: green; margin: 10px 0;">💵 收益: ¥<span id="salary-val">0.000</span></div>
+        <span style="font-size:50px;">💩</span>
+        <div style="font-weight: bold; color: green; margin: 5px 0;">收益: ¥<span id="salary-val">0.000</span></div>
         <div id="timer-display">00:00</div>
         <button id="actionBtn" class="main-btn" onclick="toggleSession()">开始拉屎</button>
     </div>
 
-    <div style="padding: 10px 25px; font-size: 16px; font-weight: 900; color: #444;">实时战报</div>
+    <div style="padding: 10px 25px; font-size: 15px; font-weight: bold; color: #666;">最近战报</div>
     <div id="feedList"></div>
 
     <div id="shape-modal">
         <div class="modal-content">
-            <h3 style="margin-bottom:20px;">记录本次形态</h3>
+            <h3 style="text-align:center;margin-top:0">记录形态</h3>
             <div id="shape-list"></div>
-            <button onclick="document.getElementById('shape-modal').style.display='none'" style="margin-top:10px; border:none; background:none; color:#999;">取消</button>
         </div>
     </div>
 
     <script>
         const SB_URL = "https://qqqsolzdzqsgchcquijb.supabase.com";
         const SB_KEY = "sb_publishable_HkK7R0rz8u1B4f2h7_p6UA_zsBsNTWk";
-        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
+        let supabase;
 
         let startTime, timerInterval, isPooping = false;
-        let nickName = localStorage.getItem('laleme_nick') || "";
+        let nickName = localStorage.getItem('laleme_nick') || "拉友" + Math.floor(Math.random()*999);
 
         const shapes = [
             {id: 1, icon: "🌰", name: "硬球"}, {id: 2, icon: "🌭", name: "香肠"},
@@ -69,21 +70,36 @@
             {id: 5, icon: "🍕", name: "软块"}, {id: 6, icon: "🍟", name: "糊状"}, {id: 7, icon: "🌊", name: "水状"}
         ];
 
-        window.onload = () => {
-            if(!nickName) forceChangeNick();
-            updateNickUI();
-            refreshData();
-            initShapeList();
+        window.onload = async () => {
+            document.getElementById('user-nick').innerText = nickName;
+            initUI();
+            
+            try {
+                // 初始化 Supabase
+                supabase = window.supabase.createClient(SB_URL, SB_KEY);
+                document.getElementById('conn-status').innerText = "✅ 已联机";
+                document.getElementById('conn-status').style.color = "#4caf50";
+                refreshData();
+            } catch (err) {
+                showError("初始化失败：" + err.message);
+            }
         };
 
-        function updateNickUI() { document.getElementById('user-nick').innerText = nickName || "未设置"; }
-
-        function forceChangeNick() {
-            let n = prompt("请输入你的蹲坑昵称：", nickName);
-            if (n) {
-                nickName = n;
-                localStorage.setItem('laleme_nick', nickName);
-                updateNickUI();
+        async function refreshData() {
+            if (!supabase) return;
+            try {
+                const { data, error } = await supabase.from('poop_logs').select('*').order('created_at', { ascending: false }).limit(10);
+                if (error) throw error;
+                
+                document.getElementById('stat-counts').innerText = data.length;
+                document.getElementById('feedList').innerHTML = data.map(l => `
+                    <div class="feed-item">
+                        <b>${l.nickname}</b> 刚刚拉完
+                        <div style="font-size:12px; color:#999;">用时: ${Math.floor(l.duration/60)}分 | 收益: ¥${l.salary}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                showError("加载战报失败：" + err.message);
             }
         }
 
@@ -94,8 +110,7 @@
                 startTime = new Date();
                 btn.innerText = "拉完了";
                 btn.classList.add('btn-stop');
-                document.getElementById('water-sound').play();
-                timerInterval = setInterval(updateTimer, 100);
+                timerInterval = setInterval(updateTimer, 200);
             } else {
                 document.getElementById('shape-modal').style.display = 'flex';
             }
@@ -106,73 +121,62 @@
             const m = Math.floor(diff/60).toString().padStart(2,'0');
             const s = (diff%60).toString().padStart(2,'0');
             document.getElementById('timer-display').innerText = `${m}:${s}`;
-            document.getElementById('salary-val').innerText = (diff * 0.015).toFixed(3);
+            document.getElementById('salary-val').innerText = (diff * 0.012).toFixed(3);
         }
 
-        // --- 核心保存逻辑 ---
         async function save(shapeId) {
             const duration = Math.floor((new Date() - startTime) / 1000);
-            const salary = parseFloat((duration * 0.015).toFixed(2));
+            const salary = parseFloat((duration * 0.012).toFixed(2));
             
-            // 立即重置界面防止重复点击
             document.getElementById('shape-modal').style.display = 'none';
-            clearInterval(timerInterval);
-            document.getElementById('water-sound').pause();
+            resetUI();
 
-            // 构造保存的数据 (注意：Key必须与数据库列名一致)
-            const row = { 
-                nickname: nickName, 
-                duration: duration, 
-                shape_id: parseInt(shapeId), 
-                salary: salary 
-            };
-
-            console.log("正在保存:", row);
-
-            const { data, error } = await supabase.from('poop_logs').insert([row]);
-
-            if (error) {
-                console.error("保存失败:", error);
-                alert("保存失败: " + error.message + "\n请检查数据库表结构和RLS权限。");
-            } else {
-                alert("打卡成功！顺畅+1");
-                resetUI();
+            if (!supabase) return;
+            try {
+                const { error } = await supabase.from('poop_logs').insert([{
+                    nickname: nickName, 
+                    duration: duration, 
+                    shape_id: shapeId, 
+                    salary: salary
+                }]);
+                if (error) throw error;
                 refreshData();
+                alert("打卡成功！顺畅+1");
+            } catch (err) {
+                showError("保存数据失败：" + err.message);
+                alert("保存失败，请看页面上方红字。");
             }
         }
 
         function resetUI() {
             isPooping = false;
-            const btn = document.getElementById('actionBtn');
-            btn.innerText = "开始拉屎";
-            btn.classList.remove('btn-stop');
+            clearInterval(timerInterval);
+            document.getElementById('actionBtn').innerText = "开始拉屎";
+            document.getElementById('actionBtn').classList.remove('btn-stop');
             document.getElementById('timer-display').innerText = "00:00";
-            document.getElementById('salary-val').innerText = "0.000";
         }
 
-        async function refreshData() {
-            const { data, error } = await supabase.from('poop_logs').select('*').order('created_at', { ascending: false }).limit(15);
-            if (data) {
-                document.getElementById('stat-counts').innerText = data.length;
-                document.getElementById('feedList').innerHTML = data.map(l => `
-                    <div class="feed-item">
-                        <b>${l.nickname}</b> 刚刚拉完
-                        <div style="font-size:12px; color:#999;">用时: ${Math.floor(l.duration/60)}分 | 收益: ¥${l.salary} | 状态: ${shapes[l.shape_id-1]?.icon || '💩'}</div>
-                    </div>
-                `).join('');
+        function initUI() {
+            document.getElementById('shape-list').innerHTML = shapes.map(s => `
+                <div class="shape-opt" onclick="save(${s.id})">
+                    <span style="font-size:24px;margin-right:15px">${s.icon}</span> ${s.name}
+                </div>
+            `).join('');
+        }
+
+        function showError(text) {
+            const el = document.getElementById('error-msg');
+            el.innerText = text;
+            el.style.display = 'block';
+        }
+
+        function changeNick() {
+            const n = prompt("换个称号：", nickName);
+            if (n) {
+                nickName = n;
+                localStorage.setItem('laleme_nick', nickName);
+                document.getElementById('user-nick').innerText = nickName;
             }
-        }
-
-        function initShapeList() {
-            const container = document.getElementById('shape-list');
-            container.innerHTML = "";
-            shapes.forEach(s => {
-                const div = document.createElement('div');
-                div.className = 'shape-opt';
-                div.innerHTML = `<span>${s.icon}</span> <span style="margin-left:10px">${s.name}</span>`;
-                div.onclick = () => save(s.id);
-                container.appendChild(div);
-            });
         }
     </script>
 </body>
