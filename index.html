@@ -3,86 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LaLeMe - 每一份努力都值得记录</title>
-    <!-- 引入 Supabase -->
+    <title>LaLeMe V8.0 - 联机稳定版</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #ff9800; --danger: #ff4d4f; --bg: #f5f7fa; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; user-select: none; -webkit-tap-highlight-color: transparent; }
-        
-        /* 顶部样式 */
-        header { background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); color: white; padding: 30px 20px; text-align: center; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; box-shadow: 0 8px 20px rgba(255,152,0,0.3); }
-        header h1 { margin: 0; font-size: 42px; font-weight: 900; }
-        
-        /* 状态栏 */
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; user-select: none; }
+        header { background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); color: white; padding: 30px 20px; text-align: center; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
         .stats-bar { display: flex; justify-content: space-around; background: white; margin: -25px 20px 15px; padding: 20px 10px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.06); }
         .stat-item { text-align: center; flex: 1; }
         .stat-value { font-weight: 900; font-size: 18px; color: var(--primary); display: block; }
         .stat-label { font-size: 11px; color: #999; }
-
-        /* 主区域 */
         .dashboard { background: white; margin: 15px 20px; border-radius: 30px; padding: 30px 15px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
-        #timer-display { font-size: 60px; font-weight: 900; color: #333; margin: 10px 0; font-family: 'Courier New', Courier, monospace; }
-        
-        /* 按钮 */
-        .main-btn { width: 160px; height: 160px; border-radius: 50%; border: none; font-size: 24px; font-weight: 900; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 10px 30px rgba(255, 152, 0, 0.4); background: var(--primary); -webkit-appearance: none; }
+        #timer-display { font-size: 60px; font-weight: 900; color: #333; margin: 10px 0; font-family: monospace; }
+        .main-btn { width: 160px; height: 160px; border-radius: 50%; border: none; font-size: 24px; font-weight: 900; cursor: pointer; color: white; background: var(--primary); box-shadow: 0 10px 30px rgba(255, 152, 0, 0.4); }
         .btn-stop { background: var(--danger); box-shadow: 0 10px 30px rgba(255, 77, 79, 0.4); }
-
-        /* SOS 悬浮 */
-        #sos-floating { position: fixed; right: 20px; bottom: 80px; width: 70px; height: 70px; background: var(--sos); color: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; z-index: 99; background: red; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-
-        /* 弹窗 */
-        #shape-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: white; width: 85%; border-radius: 25px; padding: 20px; }
-        .shape-opt { display: flex; align-items: center; padding: 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 15px; font-weight: bold; font-size: 18px; }
-
-        /* 列表 */
-        .feed-item { background: white; margin: 10px 20px; padding: 15px; border-radius: 15px; border-left: 6px solid var(--primary); font-size: 14px; }
-        #notif-bar { position: fixed; top: 10px; width: 90%; left: 5%; background: white; color: red; padding: 10px; border-radius: 20px; display: none; z-index: 2000; text-align: center; font-weight: bold; border: 2px solid red; }
+        #shape-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 85%; border-radius: 25px; padding: 20px; text-align: center; }
+        .shape-opt { display: flex; align-items: center; justify-content: center; padding: 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 15px; font-weight: bold; font-size: 18px; background: #fff; }
+        .feed-item { background: white; margin: 10px 20px; padding: 15px; border-radius: 15px; border-left: 6px solid var(--primary); font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
-    <div id="notif-bar">📢 有人没纸了！</div>
-    <audio id="water-sound" loop preload="auto"><source src="https://www.soundjay.com/nature/river-1.mp3" type="audio/mpeg"></audio>
+    <audio id="water-sound" loop><source src="https://www.soundjay.com/nature/river-1.mp3" type="audio/mpeg"></audio>
 
     <header>
         <h1>LaLeMe</h1>
-        <div style="font-weight: bold; opacity: 0.9;">发现你的每一份努力</div>
+        <div style="font-weight: bold;">发现你的每一份努力</div>
     </header>
 
     <div class="stats-bar">
         <div class="stat-item"><span class="stat-value" id="stat-counts">...</span><span class="stat-label">全员总拉</span></div>
-        <div class="stat-item"><span class="stat-value" id="user-nick">...</span><span class="stat-label">我的昵称</span></div>
-        <div class="stat-item" onclick="forceChangeNick()"><span class="stat-value">📝</span><span class="stat-label">修改昵称</span></div>
-    </div>
-
-    <div id="sos-floating" onclick="triggerSOS()">
-        <span style="font-size: 24px;">🧻</span><span>没纸了!</span>
+        <div class="stat-item" onclick="forceChangeNick()"><span class="stat-value" id="user-nick">...</span><span class="stat-label">我的昵称 (点我改名)</span></div>
     </div>
 
     <div class="dashboard">
         <span style="font-size:60px;">💩</span>
-        <div style="font-weight: bold; color: green; margin: 10px 0;">💵 摸鱼收益: ¥<span id="salary-val">0.000</span></div>
+        <div style="font-weight: bold; color: green; margin: 10px 0;">💵 收益: ¥<span id="salary-val">0.000</span></div>
         <div id="timer-display">00:00</div>
-        <button id="actionBtn" class="main-btn">开始拉屎</button>
+        <button id="actionBtn" class="main-btn" onclick="toggleSession()">开始拉屎</button>
     </div>
 
-    <div style="padding: 10px 25px; font-size: 16px; font-weight: 900; color: #444;">实时动态</div>
+    <div style="padding: 10px 25px; font-size: 16px; font-weight: 900; color: #444;">实时战报</div>
     <div id="feedList"></div>
 
-    <!-- 形状弹窗 -->
     <div id="shape-modal">
         <div class="modal-content">
-            <h3 style="text-align:center">选择形状</h3>
+            <h3 style="margin-bottom:20px;">记录本次形态</h3>
             <div id="shape-list"></div>
+            <button onclick="document.getElementById('shape-modal').style.display='none'" style="margin-top:10px; border:none; background:none; color:#999;">取消</button>
         </div>
     </div>
 
     <script>
         const SB_URL = "https://qqqsolzdzqsgchcquijb.supabase.com";
         const SB_KEY = "sb_publishable_HkK7R0rz8u1B4f2h7_p6UA_zsBsNTWk";
-        let supabaseClient = null;
+        const supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
         let startTime, timerInterval, isPooping = false;
         let nickName = localStorage.getItem('laleme_nick') || "";
@@ -93,40 +69,17 @@
             {id: 5, icon: "🍕", name: "软块"}, {id: 6, icon: "🍟", name: "糊状"}, {id: 7, icon: "🌊", name: "水状"}
         ];
 
-        // 核心初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            initSupabase();
+        window.onload = () => {
+            if(!nickName) forceChangeNick();
             updateNickUI();
-            
-            // 使用 touchstart 提升手机端响应速度
-            const btn = document.getElementById('actionBtn');
-            btn.addEventListener('click', toggleSession);
-
-            // 初始加载一次数据
             refreshData();
-            
-            // 实时监听
-            if (supabaseClient) {
-                supabaseClient.channel('room1').on('postgres_changes', { event: 'INSERT', table: 'poop_logs' }, refreshData).subscribe();
-            }
-        });
+            initShapeList();
+        };
 
-        function initSupabase() {
-            try {
-                if (window.supabase) {
-                    supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
-                }
-            } catch (e) {
-                console.error("Supabase init failed");
-            }
-        }
-
-        function updateNickUI() {
-            document.getElementById('user-nick').innerText = nickName || "未设置";
-        }
+        function updateNickUI() { document.getElementById('user-nick').innerText = nickName || "未设置"; }
 
         function forceChangeNick() {
-            let n = prompt("请输入新昵称：", nickName);
+            let n = prompt("请输入你的蹲坑昵称：", nickName);
             if (n) {
                 nickName = n;
                 localStorage.setItem('laleme_nick', nickName);
@@ -135,17 +88,8 @@
         }
 
         function toggleSession() {
-            // 1. 检查昵称 (手机端点击时检查最稳妥)
-            if (!nickName) {
-                nickName = prompt("拉屎前请报上名来：");
-                if (!nickName) nickName = "匿名勇士" + Math.floor(Math.random()*1000);
-                localStorage.setItem('laleme_nick', nickName);
-                updateNickUI();
-            }
-
             const btn = document.getElementById('actionBtn');
             if (!isPooping) {
-                // 开始
                 isPooping = true;
                 startTime = new Date();
                 btn.innerText = "拉完了";
@@ -153,9 +97,7 @@
                 document.getElementById('water-sound').play();
                 timerInterval = setInterval(updateTimer, 100);
             } else {
-                // 结束 -> 弹窗
                 document.getElementById('shape-modal').style.display = 'flex';
-                initShapeList();
             }
         }
 
@@ -167,24 +109,40 @@
             document.getElementById('salary-val').innerText = (diff * 0.015).toFixed(3);
         }
 
+        // --- 核心保存逻辑 ---
         async function save(shapeId) {
-            isPooping = false;
-            clearInterval(timerInterval);
-            document.getElementById('water-sound').pause();
-            document.getElementById('shape-modal').style.display = 'none';
-            
             const duration = Math.floor((new Date() - startTime) / 1000);
             const salary = parseFloat((duration * 0.015).toFixed(2));
-
-            if (supabaseClient) {
-                await supabaseClient.from('poop_logs').insert([{ nickname: nickName, duration, shape_id: shapeId, salary }]);
-            }
             
-            resetUI();
-            refreshData();
+            // 立即重置界面防止重复点击
+            document.getElementById('shape-modal').style.display = 'none';
+            clearInterval(timerInterval);
+            document.getElementById('water-sound').pause();
+
+            // 构造保存的数据 (注意：Key必须与数据库列名一致)
+            const row = { 
+                nickname: nickName, 
+                duration: duration, 
+                shape_id: parseInt(shapeId), 
+                salary: salary 
+            };
+
+            console.log("正在保存:", row);
+
+            const { data, error } = await supabase.from('poop_logs').insert([row]);
+
+            if (error) {
+                console.error("保存失败:", error);
+                alert("保存失败: " + error.message + "\n请检查数据库表结构和RLS权限。");
+            } else {
+                alert("打卡成功！顺畅+1");
+                resetUI();
+                refreshData();
+            }
         }
 
         function resetUI() {
+            isPooping = false;
             const btn = document.getElementById('actionBtn');
             btn.innerText = "开始拉屎";
             btn.classList.remove('btn-stop');
@@ -193,14 +151,13 @@
         }
 
         async function refreshData() {
-            if (!supabaseClient) return;
-            const { data } = await supabaseClient.from('poop_logs').select('*').order('created_at', { ascending: false }).limit(10);
+            const { data, error } = await supabase.from('poop_logs').select('*').order('created_at', { ascending: false }).limit(15);
             if (data) {
                 document.getElementById('stat-counts').innerText = data.length;
                 document.getElementById('feedList').innerHTML = data.map(l => `
                     <div class="feed-item">
                         <b>${l.nickname}</b> 刚刚拉完
-                        <div style="font-size:12px; color:#999;">用时: ${Math.floor(l.duration/60)}分 | 收益: ¥${l.salary}</div>
+                        <div style="font-size:12px; color:#999;">用时: ${Math.floor(l.duration/60)}分 | 收益: ¥${l.salary} | 状态: ${shapes[l.shape_id-1]?.icon || '💩'}</div>
                     </div>
                 `).join('');
             }
@@ -216,13 +173,6 @@
                 div.onclick = () => save(s.id);
                 container.appendChild(div);
             });
-        }
-
-        async function triggerSOS() {
-            if (supabaseClient) {
-                await supabaseClient.from('sos_signals').insert([{ nickname: nickName || "有人" }]);
-                alert("救急信号已发出！");
-            }
         }
     </script>
 </body>
